@@ -1,140 +1,187 @@
-// app.js — logica dell'app SXRATE
-const KRE = 4; // Costante Rum-Enzo (K•RE)
+/* app.js — logica multi-page SXRATE (no audio) */
 
-function $(id){ return document.getElementById(id); }
+/* Shared storage key */
+const STORAGE_KEY = 'sxrate_inputs_v1';
+const HISTORY_KEY = 'sxrate_history_v1';
+const KRE = 4; // Costante Rum-Enzo
 
-// schermate
-const screens = ["home","inizio","risultato","storico"];
-function showScreen(id){
-  screens.forEach(s => document.getElementById(s).classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  if(id === "storico") loadStorico();
+/* Utility helpers */
+function clampNumber(n, min, max) {
+  if (typeof n !== 'number' || isNaN(n)) return min;
+  return Math.max(min, Math.min(max, n));
 }
-document.getElementById("btn-inizio").onclick = () => showScreen("inizio");
-document.getElementById("btn-storico").onclick = () => showScreen("storico");
-document.getElementById("back-home").onclick = () => showScreen("home");
-document.getElementById("to-home").onclick = () => showScreen("home");
-document.getElementById("home-from-storico")?.addEventListener("click", ()=>showScreen("home"));
+function fmt3(n){ return Number(n).toFixed(3); }
+function readStored(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY))||{} }catch(e){return{}}}
+function writeStored(o){ localStorage.setItem(STORAGE_KEY, JSON.stringify(o)); }
+function pushHistory(obj){
+  const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  h.unshift(obj);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,500)));
+}
 
-// validazione: impedire valori fuori range -> clamp automatico via oninput
-for(let i=1;i<=9;i++){
-  const el = $("p"+i);
-  el.addEventListener("input", ()=> {
-    if(el.value === "") return;
-    let v = parseFloat(el.value);
-    if(isNaN(v)) { el.value = "0.000"; return; }
-    if(v < 0) v = 0;
-    if(v > 10) v = 10;
-    el.value = v.toFixed(3);
+/* PAGE: generic initializer for parameter pages */
+function pageInit(opts){
+  // opts: { pageId, nextPage, frases, isBonus(false) }
+  const isBonus = !!opts.isBonus;
+  const display = document.getElementById('display');
+  const keypad = document.getElementById('keypad');
+  const nextBtn = document.getElementById('nextBtn') || document.getElementById('finishBtn');
+
+  // set random didascalia
+  const didaEl = document.getElementById('didascalia') || document.getElementById('bonus-dida');
+  if(didaEl) didaEl.textContent = opts.frases[Math.floor(Math.random()*opts.frases.length)];
+
+  // create keypad (shared)
+  const keys = ["1","2","3","4","5","6","7","8","9",".","0","⌫"];
+  keypad.innerHTML = keys.map(k=>`<button class="key" data-key="${k}">${k}</button>`).join('');
+  keypad.addEventListener('click', (e)=>{
+    const k = e.target?.dataset?.key;
+    if(!k) return;
+    handleKeyPress(k, display, isBonus);
   });
-  // inizializza visuale al giusto formato
-  el.value = parseFloat(el.value||5).toFixed(3);
+
+  // set initial display value from stored if present
+  const stored = readStored();
+  const curVal = stored[opts.pageId];
+  display.value = (typeof curVal !== 'undefined') ? fmt3(clampNumber(Number(curVal), isBonus?0:0, isBonus?1:10)) : '';
+
+  // next button handler
+  if(nextBtn){
+    nextBtn.addEventListener('click', ()=> {
+      let v = parseFloat(display.value);
+      if(isNaN(v)) v = isBonus ? 0 : NaN;
+      // clamp
+      if(isBonus) v = clampNumber(v, 0, 1);
+      else v = clampNumber(v, 0, 10);
+
+      if(!isBonus && isNaN(v)){ alert('Inserisci un valore valido (0.000 – 10.000)'); return; }
+
+      // save
+      const s = readStored();
+      s[opts.pageId] = Number(fmt3(v));
+      writeStored(s);
+
+      // navigate
+      window.location.href = opts.nextPage;
+    });
+  }
 }
 
-// bonus clamp
-$("bonus").addEventListener("input", ()=> {
-  let b = parseFloat($("bonus").value);
-  if(isNaN(b)) { $("bonus").value = "0.000"; return; }
-  if(b < 0) b = 0;
-  if(b > 1) b = 1;
-  $("bonus").value = b.toFixed(3);
-});
-
-// calculo
-document.getElementById("calcola").addEventListener("click", ()=> {
-  $("error").textContent = "";
-  const nome = $("nome").value.trim();
-  if(!nome){ $("error").textContent = "Inserisci un nome valido."; return; }
-
-  // leggi parametri (già formattati a 3 decimali)
-  let params = [];
-  for(let i=1;i<=9;i++){
-    let v = parseFloat($("p"+i).value);
-    if(isNaN(v)){ $("error").textContent = "Compila tutti i parametri."; return; }
-    params.push(v);
+/* keypad behaviour */
+function handleKeyPress(k, display, isBonus){
+  // display is an <input readonly>
+  let val = display.value || '';
+  if(k === '⌫'){ val = val.slice(0,-1); display.value = val; return; }
+  if(k === '.'){
+    if(val.includes('.')) return;
+    if(val === '') val = '0.';
+    else val += '.';
+    display.value = val;
+    return;
   }
-  const bonus = parseFloat($("bonus").value) || 0;
+  // digit
+  val += k;
+  // prevent multiple digits before decimals becoming too long
+  // limit total length depending on bonus or param
+  const maxLen = isBonus ? 5 : 6; // e.g. '10.000' => 6 chars, bonus '1.000' => 5
+  if(val.length > maxLen) val = val.slice(0, maxLen);
+  // prevent values > allowed numeric max by quick parse
+  const parsed = parseFloat(val);
+  if(!isNaN(parsed)){
+    if(!isBonus && parsed > 10) val = '10.000';
+    if(isBonus && parsed > 1) val = '1.000';
+  }
+  display.value = val;
+}
 
-  // media su scala 1-10
-  const media10 = params.reduce((a,b)=>a+b,0)/params.length; // 1..10
+/* RESULT calculation (shared) */
+function computeFinal(){
+  const s = readStored();
+  // expected keys: bellezza,tette,culo,fascino,voce,abb,pork,fiero,eta  (all numbers 0..10)
+  const keys = ['bellezza','tette','culo','fascino','voce','abbigliamento','porkaggine','fiero','eta'];
+  const values = keys.map(k=> clampNumber(Number(s[k]||0),0,10) );
+  // if any missing, treat as 0
+  const media10 = values.reduce((a,b)=>a+b,0)/values.length; // 0..10
+  const bonus = clampNumber(Number(s['bonus']||0),0,1); // 0..1
+  const x = media10 + bonus; // 0..11
 
-  // applichiamo il bonus come incremento agibile: bonus è 0..1, lo aggiungiamo come punti (0..1)
-  let x = media10 + bonus; // può arrivare fino a 11
-
-  // funzione di conversione a 0..5 e tendenza infinita (usiamo KRE)
+  // Conversion as defined (mirrors earlier spec)
   function convert(x){
-    // x è il valore su scala 0..11 (qui 0..11 approx)
-    if(x <= 4){
-      return 0.125 * x; // 0..0.5
-    } else if (x <= 7){
-      return 0.5 + ((x-4)/3) * 0.5; // 0.5..1
-    } else if (x < 8.5){
-      return 1.0; // plateau
-    } else if (x <= 10){
-      // esponenziale controllata con KRE
-      return 1 + 4 * Math.pow((x - 8.5) / 1.5, KRE);
-    } else {
-      // x > 10 -> esplosione
-      return 5 + Math.exp(KRE * (x - 10));
-    }
+    if(x <= 4) return 0.125 * x;
+    if(x <= 7) return 0.5 + ((x-4)/3)*0.5;
+    if(x < 8.5) return 1.0;
+    if(x <= 10) return 1 + 4 * Math.pow((x - 8.5)/1.5, KRE);
+    return 5 + Math.exp(KRE * (x - 10));
   }
 
-  const valore = convert(x);
-  // salva ultimo risultato in memoria temporanea per eventuale salvataggio nello storico
-  window.lastResult = {
-    nome: nome,
-    data: (new Date()).toLocaleString(),
-    media10: media10.toFixed(3),
-    bonus: bonus.toFixed(3),
-    x_effective: x.toFixed(3),
-    valore: (typeof valore === "number") ? valore : Number(valore)
+  const val = convert(x);
+  return {
+    value: val,
+    media10: media10,
+    bonus: bonus,
+    x: x
+  };
+}
+
+/* show result page */
+function showResultPage(){
+  const out = computeFinal();
+  document.getElementById('result-value').textContent = fmt3(out.value);
+  // caption
+  let cap = '';
+  if(out.value < 0.5) cap = "ASSOLUTAMENTE NON CHIAVARE";
+  else if(out.value < 0.9) cap = "SE È GIÀ DENTRO NON LO TOGLIERE";
+  else if(out.value < 4.5) cap = "SCOPAAAAA";
+  else if(out.value < 5) cap = "LIVELLO STXPRO";
+  else cap = "POTRESTI MORIRE PER CHIAVARCI";
+  document.getElementById('result-caption').textContent = cap;
+  document.getElementById('result-meta').textContent = `Media: ${fmt3(out.media10)} • Bonus: ${fmt3(out.bonus)} • x=${fmt3(out.x)}`;
+
+  // save button
+  document.getElementById('saveBtn').onclick = ()=>{
+    const s = readStored();
+    pushHistory({
+      name: s['name'] || '—',
+      value: Number(fmt3(out.value)),
+      media10: fmt3(out.media10),
+      bonus: fmt3(out.bonus),
+      date: (new Date()).toLocaleString()
+    });
+    alert('Salvato nello storico.');
   };
 
-  // mostra risultato (formattato)
-  $("valore").textContent = (typeof valore === "number") ? valore.toFixed(3) : String(valore);
-  // didascalia
-  let d = "";
-  if(valore < 0.5) d = "ASSOLUTAMENTE NON CHIAVARE";
-  else if (valore < 0.9) d = "SE È GIÀ DENTRO NON LO TOGLIERE";
-  else if (valore < 4.5) d = "SCOPAAAAA";
-  else if (valore < 5) d = "LIVELLO STXPRO";
-  else d = "POTRESTI MORIRE PER CHIAVARCI";
-
-  $("didascalia").textContent = d;
-  showScreen("risultato");
-});
-
-// storico
-function loadStorico(){
-  const storico = JSON.parse(localStorage.getItem("sxrate_storico")||"[]");
-  const lista = $("lista");
-  if(!storico.length){ lista.innerHTML = "<p>Nessun risultato salvato.</p>"; return; }
-  lista.innerHTML = storico.map(s=> {
-    return `<p><strong>${escapeHtml(s.nome)}</strong> — ${s.valore} <span class="muted">(${s.data})</span></p>`;
-  }).join("");
-}
-document.getElementById("save").addEventListener("click", ()=> {
-  if(!window.lastResult) return;
-  const storico = JSON.parse(localStorage.getItem("sxrate_storico")||"[]");
-  storico.unshift({ nome: window.lastResult.nome, data: window.lastResult.data, valore: window.lastResult.valore.toFixed ? window.lastResult.valore.toFixed(3) : String(window.lastResult.valore) });
-  // mantieni solo ultimi 200 risultati (sicurezza)
-  localStorage.setItem("sxrate_storico", JSON.stringify(storico.slice(0,200)));
-  loadStorico();
-  showScreen("storico");
-});
-document.getElementById("clear").addEventListener("click", ()=> {
-  if(confirm("Svuotare lo storico?")) {
-    localStorage.removeItem("sxrate_storico");
-    loadStorico();
-  }
-});
-
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-// registra service worker
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  // share link (simple)
+  document.getElementById('shareLink')?.setAttribute('href', '#');
 }
 
-// al load
-loadStorico();
+/* history page */
+function loadHistoryPage(){
+  const list = document.getElementById('historyList');
+  const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  if(!h.length){ list.innerHTML = '<p>Nessun risultato salvato.</p>'; return; }
+  list.innerHTML = h.map(it=>`<p><strong>${it.name||'—'}</strong> — ${fmt3(it.value)} <span class="muted">(${it.date})</span></p>`).join('');
+  document.getElementById('clearHistory').onclick = ()=>{
+    if(confirm('Svuotare lo storico?')){ localStorage.removeItem(HISTORY_KEY); loadHistoryPage(); }
+  };
+}
+
+/* helper: when entering first page, reset stored inputs and allow user to set name */
+function startFlowReset(){
+  localStorage.removeItem(STORAGE_KEY);
+  // optional: store name via prompt
+  const n = prompt('Inserisci il nome della persona (campo obbligatorio)');
+  const s = readStored();
+  s['name'] = n ? String(n).slice(0,40) : '—';
+  writeStored(s);
+}
+
+/* Optional small function to attach on index -> start btn */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const startBtn = document.getElementById('start-btn');
+  if(startBtn) startBtn.onclick = ()=>{
+    startFlowReset();
+    window.location.href = 'param_bellezza.html';
+  };
+  const historyBtn = document.getElementById('history-btn');
+  if(historyBtn) historyBtn.onclick = ()=> window.location.href = 'history.html';
+});
