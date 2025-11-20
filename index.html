@@ -1,85 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>SXRATE</title>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="style.css"/>
-  <meta name="theme-color" content="#ff008c"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SXRATE — Home</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <!-- HOME -->
-  <main id="home" class="screen active">
-    <h1 class="logo">SXRATE</h1>
-    <div class="btns">
-      <button class="big" id="btn-inizio">INIZIO</button>
-      <button class="big" id="btn-storico">STORICO</button>
-    </div>
+<body class="app gradient-split">
+  <div class="card">
+    <header class="header">
+      <img src="icons/icon.png" class="logo" alt="SXRATE">
+      <div class="title-group">
+        <h1>SXRATE</h1>
+        <div class="subtitle">Costante Rum-Enzo • K•RE</div>
+      </div>
+    </header>
 
-    <section class="scale-box">
-      <h2>Scala Valori</h2>
-      <p><strong>0 – 0.5</strong> → ASSOLUTAMENTE NON CHIAVARE</p>
-      <p><strong>0.5 – 0.9</strong> → SE È GIÀ DENTRO NON LO TOGLIERE</p>
-      <p><strong>1 – 4.5</strong> → SCOPAAAAA</p>
-      <p><strong>4.5 – 5</strong> → LIVELLO STXPRO</p>
-      <p><strong>5 – +∞</strong> → POTRESTI MORIRE PER CHIAVARCI</p>
-    </section>
-  </main>
+    <main class="main">
+      <h2 class="big">Livello STXPRO</h2>
 
-  <!-- INIZIO / FORM -->
-  <section id="inizio" class="screen">
-    <h2>Nuova Valutazione</h2>
-    <div class="form">
-      <input id="nome" placeholder="Nome (obbligatorio)" maxlength="40" />
-
-      <p class="hint">Parametri — valori da <strong>0.000</strong> a <strong>10.000</strong> (step 0.001)</p>
-      <div class="params">
-        <label>Bellezza (viso) <input id="p1" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Tette <input id="p2" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Culo <input id="p3" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Fascino <input id="p4" type="Number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Voce <input id="p5" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Abbigliamento <input id="p6" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>PORKAGGINE <input id="p7" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Quanto ne andresti fiero con gli amici? <input id="p8" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
-        <label>Condizione rispetto all'età <input id="p9" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+      <div class="actions">
+        <a class="btn primary" href="param_bellezza.html">INIZIO</a>
+        <a class="btn ghost" href="history.html">STORICO</a>
       </div>
 
-      <p class="hint">Bonus — da <strong>0.000</strong> a <strong>1.000</strong> (step 0.001)</p>
-      <input id="bonus" type="number" min="0" max="1" step="0.001" value="0.000" />
+      <section class="scale-card">
+        <h3>Scala Valutazioni</h3>
+        <ul>
+          <li><strong>0 – 0.5</strong> → ASSOLUTAMENTE NON CHIAVARE</li>
+          <li><strong>0.5 – 0.9</strong> → SE È GIÀ DENTRO NON LO TOGLIERE</li>
+          <li><strong>1 – 4.5</strong> → SCOPAAAAA</li>
+          <li><strong>4.5 – 5</strong> → LIVELLO STXPRO</li>
+          <li><strong>5 – +∞</strong> → POTRESTI MORIRE PER CHIAVARCI</li>
+        </ul>
+      </section>
+    </main>
 
-      <div class="form-btns">
-        <button id="calcola" class="big">CALCOLA</button>
-        <button id="back-home" class="small">INDIETRO</button>
-      </div>
-      <p id="error" class="error"></p>
-    </div>
-  </section>
-
-  <!-- RISULTATO -->
-  <section id="risultato" class="screen">
-    <h2>Risultato</h2>
-    <div class="result-card">
-      <div id="valore" class="valore">--</div>
-      <div id="didascalia" class="didascalia">--</div>
-      <div class="result-actions">
-        <button id="save" class="big">SALVA NELLO STORICO</button>
-        <button id="to-home" class="small">HOME</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- STORICO -->
-  <section id="storico" class="screen">
-    <h2>Storico</h2>
-    <div id="lista" class="lista"></div>
-    <div class="form-btns">
-      <button id="clear" class="small danger">SVUOTA</button>
-      <button id="home-from-storico" class="small">HOME</button>
-    </div>
-  </section>
-
-  <script src="app.js"></script>
+    <footer class="footer">SXRATE • Tema fucsia/azzurro • K•RE = 4</footer>
+  </div>
 </body>
 </html>
