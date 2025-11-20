@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SXRATE — Bonus</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="app gradient-split">
+  <div class="card">
+    <header class="header small">
+      <a href="param_eta.html" class="back">←</a>
+      <img src="icons/icon.png" class="logo" alt="SXRATE">
+      <div class="title-group"><h1>Bonus</h1></div>
+    </header>
+
+    <main class="main">
+      <p id="bonus-dida" class="didascalia"></p>
+
+      <div class="num-wrap">
+        <input id="display" class="num-display" placeholder="0.000" readonly>
+      </div>
+
+      <div class="keypad" id="keypad"></div>
+
+      <div class="param-footer">
+        <a class="btn ghost" href="param_eta.html">INDIETRO</a>
+        <button class="btn primary" id="finishBtn">RISULTATO</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // inizializza keypad per bonus (range 0.000 - 1.000)
+    pageInit({
+      pageId: 'bonus',
+      nextPage: 'result.html',
+      frases: [
+        "Dai il colpo finale.",
+        "Il punto che decide tutto.",
+        "Se merita di più, è qui.",
+        "Il segreto del voto totale.",
+        "Extra per veri intenditori.",
+        "Per quando la media non basta.",
+        "Il piccolo boost che pesa."
+      ],
+      isBonus: true
+    });
+  </script>
+</body>
+</html>
