@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="it">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SXRATE — Risultato</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="app gradient-split">
+  <div class="card">
+    <header class="header small">
+      <a href="index.html" class="back">←</a>
+      <img src="icons/icon.png" class="logo" alt="SXRATE">
+      <div class="title-group"><h1>Risultato</h1></div>
+    </header>
+
+    <main class="main center">
+      <div class="result-card">
+        <div id="result-value" class="result-value">--</div>
+        <div id="result-caption" class="result-caption">--</div>
+        <div id="result-meta" class="result-meta"></div>
+        <div class="result-actions">
+          <button id="saveBtn" class="btn primary">SALVA NELLO STORICO</button>
+          <a id="shareLink" class="btn ghost" href="#">CONDIVIDI</a>
+          <a class="btn" href="index.html">HOME</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script> document.addEventListener('DOMContentLoaded', ()=> showResultPage() ); </script>
+</body>
+</html>
