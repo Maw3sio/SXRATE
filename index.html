@@ -1,113 +1,85 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SXRATE</title>
-
-    <link rel="manifest" href="manifest.json" />
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #ff008c;
-            color: white;
-            text-align: center;
-        }
-
-        .screen { display: none; padding: 20px; }
-        .active { display: block; }
-
-        button {
-            background: white;
-            color: #ff008c;
-            border: none;
-            padding: 15px;
-            width: 80%;
-            margin-top: 15px;
-            border-radius: 14px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 90%;
-            padding: 10px;
-            margin: 6px;
-            font-size: 18px;
-            border-radius: 10px;
-            border: none;
-        }
-
-        .scale-box {
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SXRATE</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="stylesheet" href="style.css"/>
+  <meta name="theme-color" content="#ff008c"/>
 </head>
 <body>
-
-<!-- SCHERMATA 1 — HOME -->
-<div id="home" class="screen active">
-    <h1 style="font-size: 50px; margin-top: 20px;">SXRATE</h1>
-
-    <button onclick="showScreen('inizio')">INIZIO</button>
-    <button onclick="showScreen('storico')">STORICO</button>
-
-    <div class="scale-box">
-        <h2>Scala Valori</h2>
-        <p>0 – 0.5 → ASSOLUTAMENTE NON CHIAVARE</p>
-        <p>0.5 – 0.9 → SE È GIÀ DENTRO NON LO TOGLIERE</p>
-        <p>1 – 4.5 → SCOPAAAAA</p>
-        <p>4.5 – 5 → LIVELLO STXPRO</p>
-        <p>5 – +∞ → POTRESTI MORIRE PER CHIAVARCI</p>
+  <!-- HOME -->
+  <main id="home" class="screen active">
+    <h1 class="logo">SXRATE</h1>
+    <div class="btns">
+      <button class="big" id="btn-inizio">INIZIO</button>
+      <button class="big" id="btn-storico">STORICO</button>
     </div>
-</div>
 
-<!-- SCHERMATA 2 — INIZIO -->
-<div id="inizio" class="screen">
+    <section class="scale-box">
+      <h2>Scala Valori</h2>
+      <p><strong>0 – 0.5</strong> → ASSOLUTAMENTE NON CHIAVARE</p>
+      <p><strong>0.5 – 0.9</strong> → SE È GIÀ DENTRO NON LO TOGLIERE</p>
+      <p><strong>1 – 4.5</strong> → SCOPAAAAA</p>
+      <p><strong>4.5 – 5</strong> → LIVELLO STXPRO</p>
+      <p><strong>5 – +∞</strong> → POTRESTI MORIRE PER CHIAVARCI</p>
+    </section>
+  </main>
+
+  <!-- INIZIO / FORM -->
+  <section id="inizio" class="screen">
     <h2>Nuova Valutazione</h2>
+    <div class="form">
+      <input id="nome" placeholder="Nome (obbligatorio)" maxlength="40" />
 
-    <input id="nome" placeholder="Nome">
+      <p class="hint">Parametri — valori da <strong>0.000</strong> a <strong>10.000</strong> (step 0.001)</p>
+      <div class="params">
+        <label>Bellezza (viso) <input id="p1" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Tette <input id="p2" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Culo <input id="p3" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Fascino <input id="p4" type="Number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Voce <input id="p5" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Abbigliamento <input id="p6" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>PORKAGGINE <input id="p7" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Quanto ne andresti fiero con gli amici? <input id="p8" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+        <label>Condizione rispetto all'età <input id="p9" type="number" min="0" max="10" step="0.001" value="5.000" /></label>
+      </div>
 
-    <h3>Parametri (1–10 con 3 decimali)</h3>
+      <p class="hint">Bonus — da <strong>0.000</strong> a <strong>1.000</strong> (step 0.001)</p>
+      <input id="bonus" type="number" min="0" max="1" step="0.001" value="0.000" />
 
-    <input id="p1" placeholder="Bellezza (viso)">
-    <input id="p2" placeholder="Tette">
-    <input id="p3" placeholder="Culo">
-    <input id="p4" placeholder="Fascino">
-    <input id="p5" placeholder="Voce">
-    <input id="p6" placeholder="Abbigliamento">
-    <input id="p7" placeholder="Porkaggine">
-    <input id="p8" placeholder="Fiero con gli amici?">
-    <input id="p9" placeholder="Condizione vs età">
+      <div class="form-btns">
+        <button id="calcola" class="big">CALCOLA</button>
+        <button id="back-home" class="small">INDIETRO</button>
+      </div>
+      <p id="error" class="error"></p>
+    </div>
+  </section>
 
-    <h3>Bonus (0–1 con 3 decimali)</h3>
-    <input id="bonus" placeholder="Bonus">
+  <!-- RISULTATO -->
+  <section id="risultato" class="screen">
+    <h2>Risultato</h2>
+    <div class="result-card">
+      <div id="valore" class="valore">--</div>
+      <div id="didascalia" class="didascalia">--</div>
+      <div class="result-actions">
+        <button id="save" class="big">SALVA NELLO STORICO</button>
+        <button id="to-home" class="small">HOME</button>
+      </div>
+    </div>
+  </section>
 
-    <button onclick="calculate()">CALCOLA</button>
-    <button onclick="showScreen('home')">INDIETRO</button>
-</div>
+  <!-- STORICO -->
+  <section id="storico" class="screen">
+    <h2>Storico</h2>
+    <div id="lista" class="lista"></div>
+    <div class="form-btns">
+      <button id="clear" class="small danger">SVUOTA</button>
+      <button id="home-from-storico" class="small">HOME</button>
+    </div>
+  </section>
 
-<!-- SCHERMATA 3 — RISULTATO -->
-<div id="risultato" class="screen">
-    <h1 id="valore"></h1>
-    <h2 id="didascalia"></h2>
-
-    <button onclick="saveResult()">SALVA NELLO STORICO</button>
-    <button onclick="showScreen('home')">HOME</button>
-</div>
-
-<!-- SCHERMATA 4 — STORICO -->
-<div id="storico" class="screen">
-    <h1>Storico</h1>
-    <div id="lista"></div>
-
-    <button onclick="showScreen('home')">HOME</button>
-</div>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
