@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="it">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SXRATE — Storico</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="app gradient-split">
+  <div class="card">
+    <header class="header small">
+      <a href="index.html" class="back">←</a>
+      <img src="icons/icon.png" class="logo" alt="SXRATE">
+      <div class="title-group"><h1>Storico</h1></div>
+    </header>
+
+    <main class="main">
+      <div id="historyList" class="history-list"></div>
+      <div class="param-footer">
+        <button id="clearHistory" class="btn danger">SVUOTA</button>
+        <a class="btn" href="index.html">HOME</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script> document.addEventListener('DOMContentLoaded', ()=> loadHistoryPage() ); </script>
+</body>
+</html>
